@@ -275,7 +275,7 @@ httpApp = httpApp.listen(process.env.PORT || PORT, process.env.IP || "0.0.0.0", 
 
 ioServer(httpApp, {
     cors: {
-      origin: "https://localhost",
+      origin: "https://7ss5.com",
       methods: ["GET", "POST"]
     }
   }).on('connection', function(socket) {
