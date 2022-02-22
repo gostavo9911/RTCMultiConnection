@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
-var httpServer = require('http');
+var httpServer = require('https');
 
 const ioServer = require('socket.io');
 const RTCMultiConnectionServer = require('rtcmulticonnection-server');
@@ -228,7 +228,7 @@ if (isUseHTTPs) {
     var options = {
         key: null,
         cert: null,
-        ca: null
+        ca: null,
     };
 
     var pfx = false;
@@ -273,7 +273,12 @@ httpApp = httpApp.listen(process.env.PORT || PORT, process.env.IP || "0.0.0.0", 
 // --------------------------
 // socket.io codes goes below
 
-ioServer(httpApp).on('connection', function(socket) {
+ioServer(httpApp, {
+    cors: {
+      origin: "https://localhost",
+      methods: ["GET", "POST"]
+    }
+  }).on('connection', function(socket) {
     RTCMultiConnectionServer.addSocket(socket, config);
 
     // ----------------------
