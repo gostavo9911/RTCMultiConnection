@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
-var httpServer = require('https');
+var httpServer = require('http');
 
 const ioServer = require('socket.io');
 const RTCMultiConnectionServer = require('rtcmulticonnection-server');
