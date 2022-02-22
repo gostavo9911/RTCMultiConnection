@@ -228,7 +228,7 @@ if (isUseHTTPs) {
     var options = {
         key: null,
         cert: null,
-        ca: null,
+        ca: null
     };
 
     var pfx = false;
@@ -275,7 +275,7 @@ httpApp = httpApp.listen(process.env.PORT || PORT, process.env.IP || "0.0.0.0", 
 
 ioServer(httpApp, {
     cors: {
-      origin: "https://7ss5.com",
+      origin: "https://localhost",
       methods: ["GET", "POST"]
     }
   }).on('connection', function(socket) {
