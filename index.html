@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>شات نبض العراق</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="shortcut icon" href="./img/logo.png">
+  <link rel="stylesheet" href="./css/stylesheet.css">
+  <script src="./js/menu.js"></script>
+</head>
+<body>
+  <header>
+    <a class="logo" href="/"><img src="./img/logo.png" alt="RTCMultiConnection"></a>
+    <a href="/" class="menu-explorer">Menu<img src="./img/menu-icon.png" alt="Menu"></a>
+  </header>
+
+  <h1>
+    شات نبض العراق
+  </h1>
+
+  <section class="make-center">
+    <button id="open-or-join-room">الإنضمام للشات الصوتي</button>
+
+    <div id="audios-container"></div>
+  </section>
+
+<script src="./js/RTCMultiConnection.js"></script>
+<script src="./js/adapter.js"></script>
+<script src="./js/socket.io.js"></script>
+
+<link rel="stylesheet" href="./css/getHTMLMediaElement.css">
+<script src="./js/getHTMLMediaElement.js"></script>
+<script>
+  //on page load
+  document.addEventListener("DOMContentLoaded", function(event) {
+     let text;
+     let person = prompt("الرجاء إدخال إسمك", (Math.random() + 1).toString(36).substring(2));
+     if (person == null || person == "") {
+        text = (Math.random() + 1).toString(36).substring(2);
+     } else {
+        text = person;
+     }
+     connection.userid = text;
+     connection.join('7ss5-room1', function(isRoomOpened, roomid, error) {
+        if (isRoomOpened === true) {}
+     });
+  });
+
+  //when clicking on the mic button
+  document.getElementById('open-or-join-room').onclick = function() {
+     connection.checkPresence('7ss5-room1', function(isRoomExist, roomid, error) {
+        if (isRoomExist === true) {
+            var audioscount = document.getElementsByTagName('audio').length;
+            if(audioscount < 5){
+              connection.addStream({
+              audio: true,
+            });
+            }else{
+
+            }
+        } else {
+           connection.dontCaptureUserMedia = false;
+           connection.open(roomid);
+           disableInputButtons();
+        }
+     });
+     disableInputButtons();
+  };
+
+  // ......................................................
+  // ..................RTCMultiConnection Code.............
+  // ......................................................
+
+  var connection = new RTCMultiConnection();
+
+  // by default, socket.io server is assumed to be deployed on your own URL
+  connection.socketURL = 'https://localhost:9001/';
+
+  // comment-out below line if you do not have your own socket.io server
+  // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+  connection.socketMessageEvent = 'audio-conference-demo';
+  connection.dontCaptureUserMedia = true;
+  connection.session = {
+     audio: true,
+     //broadcast: false,
+     oneway: false,
+     video: false
+  };
+  //connection.dontCaptureUserMedia = true;
+
+  connection.mediaConstraints = {
+
+     video: false,
+     audio: {
+        mandatory: {
+           echoCancellation: true, // disabling audio processing
+           googAutoGainControl: true,
+           googNoiseSuppression: true,
+           googHighpassFilter: true,
+           //googTypingNoiseDetection: true,
+           //googAudioMirroring: true
+        },
+        optional: []
+     }
+  };
+
+  connection.sdpConstraints = {
+     mandatory: {
+        OfferToReceiveAudio: true,
+        OfferToReceiveVideo: false
+     },
+     optional: []
+  };
+
+  // https://www.rtcmulticonnection.org/docs/iceServers/
+  // use your own TURN-server here!
+  connection.iceServers = [{
+     'urls': [
+        'stun:stun.l.google.com:19302',
+        'stun:stun1.l.google.com:19302',
+        'stun:stun2.l.google.com:19302',
+        'stun:stun.l.google.com:19302?transport=udp',
+     ]
+  }];
+
+  connection.audiosContainer = document.getElementById('audios-container');
+  connection.onstream = function(event) {
+     var width = parseInt(connection.audiosContainer.clientWidth / 2) - 20;
+     var mediaElement = getHTMLMediaElement(event.mediaElement, {
+        title: event.userid,
+        buttons: ['full-screen'],
+        width: width,
+        showOnMouseEnter: false
+     });
+
+     connection.audiosContainer.appendChild(mediaElement);
+
+     setInterval(function() {
+        mediaElement.media.play();
+     }, 2000);
+
+     mediaElement.id = event.streamid;
+
+
+  };
+
+  connection.onstreamended = function(event) {
+     var mediaElement = document.getElementById(event.streamid);
+     if (mediaElement) {
+        mediaElement.parentNode.removeChild(mediaElement);
+     }
+  };
+
+  function disableInputButtons() {
+     document.getElementById('open-or-join-room').disabled = true;
+  }
+
+
+  (function() {
+     var params = {},
+        r = /([^&=]+)=?([^&]*)/g;
+
+     function d(s) {
+        return decodeURIComponent(s.replace(/\+/g, ' '));
+     }
+     var match, search = window.location.search;
+     while (match = r.exec(search.substring(1)))
+        params[d(match[1])] = d(match[2]);
+     window.params = params;
+  })();
+</script>
+
+
+  <script src="https://www.webrtc-experiment.com/common.js"></script>
+</body>
+</html>
